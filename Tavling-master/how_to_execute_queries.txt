@@ -1,0 +1,42 @@
+How to execute queries: 
+
+Most queries have variables that needs to be replaced by values before execution. 
+Variables are preceded by a colon. 
+
+Take this query for example: 
+/* ******************************************************************************************
+Number 9
+Find competitions filtered by location and time interval
+:date1		(start date of filter)
+:date2		(end date of filter)
+:country 	(country name)
+:prov		(state/province name)
+:city		(city name)
+****************************************************************************************** */
+SELECT name, startDate, endDate, country, province_state, city
+FROM Competition
+WHERE city LIKE :city AND province_state LIKE :prov AND country LIKE :country AND NOT
+	((startDate < :date1 AND endDate < :date1) OR (startDate > :date2 AND endDate > :date2));
+
+:date1 and :date2 needs to be replaced with strings on the format ‘yyyy-mm-dd’ or ‘%’ if we don’t filter by date. 
+Same for the other attributes that needs to be replaced by a string ‘sssss’ or ‘%’. 
+
+
+Another example: 
+/* ******************************************************************************************
+Number 6
+Find records in all sports for an athlete (given sport type)
+:sportType	(TB/SB)
+:aid 		(athleteID)
+****************************************************************************************** */
+SELECT s.name AS 'Sport', athRecord.record AS 'Record'
+FROM Sport s
+JOIN (SELECT sportID, IF(':sportType' LIKE 'TB', MIN(result), MAX(result)) AS record
+	FROM Participates:sporttype parti
+	WHERE athleteID = :aid
+	GROUP BY sportID) as athRecord
+	ON s.sportID = athRecord.sportID;
+
+:sportType needs to be replaced by either SB or TB, NO QOUTEATION MARKS! :aid is replaced with a single number (athleteID)
+
+
